@@ -1,64 +1,158 @@
 <h1>Привет, это мой сайт!</h1>
 
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Windecs Profile</title>
+    <meta charset="UTF-8">
+    <title>Windecs Interactive</title>
     <style>
         body { 
             margin: 0; 
-            padding: 50px 20px; /* Отступ сверху, чтобы текст не прилипал */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Нежный светлый градиент */
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 80px 40px;
+            font-family: 'Inter', sans-serif;
+            background: #0f0c29; /* Глубокий космический цвет */
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
             min-height: 100vh;
+            color: white;
+            overflow: hidden; /* Чтобы частицы не создавали прокрутку */
         }
 
-        .container {
-            max-width: 600px;
-            /* Текст будет слева, а не по центру */
-            text-align: left; 
+        /* Холст для частиц */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
         }
 
-        h1 {
-            color: #2d3436;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+        .content {
+            position: relative;
+            z-index: 1; /* Чтобы текст был поверх частиц */
+            max-width: 700px;
+            opacity: 0;
+            animation: fadeInUp 1.5s ease forwards;
         }
 
-        p {
-            color: #636e72;
-            margin-bottom: 30px;
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(50px); }
         }
+
+        h1 { font-size: 4rem; margin: 0; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
 
         .my-button {
-            display: inline-block; /* Чтобы кнопка не растягивалась на весь экран */
-            background-color: #00b894; /* Приятный мятно-зеленый */
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
             color: white;
-            padding: 14px 28px;
-            border-radius: 12px;
+            padding: 20px 40px;
+            border-radius: 15px;
             text-decoration: none;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
-            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.4s;
         }
 
         .my-button:hover {
-            background-color: #00a082;
-            transform: translateY(-2px); /* Кнопка чуть подпрыгивает */
-            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+            background: white;
+            color: #0f0c29;
+            box-shadow: 0 0 50px rgba(255,255,255,0.5);
+            transform: translateY(-5px);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Welcome.</h1>
-        <p>Это моя персональная страница на GitHub. Ниже ссылка на основной профиль:</p>
-        
-        <a href="https://guns.lol/windecs" class="my-button">Открыть сайт</a>
+    <canvas id="canvas"></canvas>
+
+    <div class="content">
+        <h1>Windecs</h1>
+        <p>Интерактивная визитка. Двигай мышкой, чтобы управлять частицами.</p>
+        <a href="https://guns.lol/windecs" class="my-button">Visit Guns.lol →</a>
     </div>
 
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = { x: null, y: null, radius: 150 };
+
+        window.addEventListener('mousemove', function(event) {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                
+                // Взаимодействие с мышью
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius + this.size){
+                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 10;
+                    if (mouse.x > this.x && this.x > this.size * 10) this.x -= 10;
+                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 10;
+                    if (mouse.y > this.y && this.y > this.size * 10) this.y -= 10;
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 3) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 5) - 2.5;
+                let directionY = (Math.random() * 5) - 2.5;
+                let color = '#8C5523';
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        window.addEventListener('resize', function(){
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+    </script>
 </body>
 </html>
 
@@ -80,3 +174,149 @@
 
 
 <h1> Обо мне </h1>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Windecs Goose Edition</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 80px 40px;
+            font-family: 'Inter', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            cursor: none; /* Скрываем стандартный курсор, чтобы гусь был вместо него */
+        }
+
+        #canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+
+        /* Стиль нашего гуся */
+        #goose {
+            position: fixed;
+            font-size: 40px;
+            pointer-events: none; /* Чтобы гусь не мешал нажимать на кнопки */
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            user-select: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            opacity: 0;
+            animation: fadeInUp 1.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(50px); }
+        }
+
+        h1 { font-size: 4rem; margin: 0; }
+        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
+
+        .my-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer; /* На кнопке курсор появится снова для удобства */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="goose">🪿</div>
+    <canvas id="canvas"></canvas>
+
+    <div class="content">
+        <h1>Windecs</h1>
+        <p>Берегись! Гусь следит за твоим курсором.</p>
+        <a href="https://guns.lol" class="my-button">Visit Guns.lol →</a>
+    </div>
+
+    <script>
+        // Код для частиц (оставляем старый)
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = { x: canvas.width/2, y: canvas.height/2, radius: 150 };
+        const goose = document.getElementById('goose');
+
+        // Плавное следование гуся
+        let gooseX = 0;
+        let gooseY = 0;
+
+        window.addEventListener('mousemove', function(e) {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        function moveGoose() {
+            // Математика плавности (гусь догоняет курсор)
+            let dx = mouse.x - gooseX;
+            let dy = mouse.y - gooseY;
+            
+            gooseX += dx * 0.1; 
+            gooseY += dy * 0.1;
+
+            goose.style.left = gooseX - 20 + 'px';
+            goose.style.top = gooseY - 20 + 'px';
+
+            // Поворачиваем гуся в зависимости от направления движения
+            if (dx > 0) goose.style.transform = 'scaleX(-1)';
+            else goose.style.transform = 'scaleX(1)';
+
+            requestAnimationFrame(moveGoose);
+        }
+
+        // Логика частиц (кратко)
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+        moveGoose();
+    </script>
+</body>
+</html>
