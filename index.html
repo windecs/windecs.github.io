@@ -263,3 +263,87 @@
     </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Secret Access</title>
+    <style>
+        body { 
+            margin: 0; padding: 50px; 
+            font-family: 'Courier New', Courier, monospace; 
+            background: #1a1a1a; color: #00ff00; 
+            transition: 0.5s;
+        }
+
+        /* Обычный контент */
+        #public-content { text-align: center; }
+        
+        /* Скрытая админка */
+        #admin-panel { 
+            display: none; 
+            border: 2px solid #00ff00; 
+            padding: 20px; 
+            margin-top: 20px;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            background: #222; color: #00ff00;
+            border: 1px solid #00ff00; padding: 10px;
+            cursor: pointer; font-family: inherit;
+        }
+
+        button:hover { background: #00ff00; color: #000; }
+
+        .secret-btn { margin-top: 50px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+    <!-- То, что видят все -->
+    <div id="public-content">
+        <h1>Сайт Windecs</h1>
+        <p>Обычная страница для обычных людей.</p>
+        <button class="secret-btn" onclick="askCode()">Вход для персонала</button>
+    </div>
+
+    <!-- Секретная панель (скрыта по умолчанию) -->
+    <div id="admin-panel">
+        <h2>⚡ ADMIN PANEL ACTIVATED ⚡</h2>
+        <p>Добро пожаловать, Windecs. Доступ разрешен.</p>
+        
+        <div class="admin-grid">
+            <button onclick="alert('Взлом пентагона... 1%')">Удалить сайт</button>
+            <button onclick="alert('Цвет изменен!')">Сменить тему</button>
+            <button onclick="alert('Гусь забанен!')">Выгнать гуся</button>
+            <button onclick="location.reload()">Выйти из админки</button>
+        </div>
+    </div>
+
+    <script>
+        function askCode() {
+            // Запрашиваем код через всплывающее окно
+            const code = prompt("Введите секретный ключ доступа:");
+            
+            if (code === "1121314151") {
+                alert("ДОСТУП ПОДТВЕРЖДЕН");
+                // Скрываем обычный контент и показываем админку
+                document.getElementById('public-content').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                document.body.style.background = "#000";
+            } else if (code !== null) {
+                alert("ОШИБКА ДОСТУПА. СИСТЕМА ЗАБЛОКИРОВАНА (шутка)");
+            }
+        }
+    </script>
+</body>
+</html>
