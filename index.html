@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Windecs Space</title>
+    <title>Windecs Ultimate Space</title>
     <style>
         :root { --accent: #00b894; }
         body { 
@@ -23,37 +23,49 @@
         }
 
         .content { position: relative; z-index: 10; max-width: 700px; }
-        h1 { font-size: 4rem; margin: 0; color: var(--accent); }
+        h1 { font-size: 4rem; margin: 0; color: var(--accent); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
         p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
 
         .btn {
             display: inline-block; padding: 18px 35px; border-radius: 12px;
             text-decoration: none; font-weight: bold; color: white;
             background: var(--accent); border: none; cursor: pointer;
-            transition: 0.3s;
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        /* ТА САМАЯ КНОПКА АДМИНКИ */
+        /* КНОПКА АДМИНКИ */
         .login-trigger { 
             position: fixed; bottom: 20px; right: 20px; 
-            z-index: 99999; /* Поверх всего */
+            z-index: 99999;
             background: #ff4757; color: white;
-            border: none; padding: 10px 15px;
+            border: none; padding: 12px 20px;
             border-radius: 8px; font-weight: bold;
-            cursor: pointer; opacity: 1;
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+            cursor: pointer; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
         }
 
-        /* ПАНЕЛЬ */
+        /* АДМИН-ПАНЕЛЬ */
         #admin-ui { 
             display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); background: #111;
+            transform: translate(-50%, -50%); background: rgba(17, 17, 17, 0.95);
             padding: 30px; border-radius: 15px; border: 2px solid var(--accent);
-            z-index: 100000; width: 300px;
+            z-index: 100000; width: 350px; backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
         }
-        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #0f0; }
-        .save-btn { background: #28a745; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; }
-        .reset-btn { background: #555; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; margin-top: 5px; }
+
+        .admin-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;
+        }
+
+        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #0f0; border-radius: 5px; }
+        
+        .action-btn { 
+            background: #333; color: #0f0; border: 1px solid #0f0; 
+            padding: 8px; cursor: pointer; font-size: 12px; border-radius: 5px;
+        }
+        .action-btn:hover { background: #0f0; color: #000; }
+
+        .save-btn { background: #28a745; color: white; width: 100%; padding: 12px; border: none; cursor: pointer; margin-top: 15px; border-radius: 5px; font-weight: bold; }
+        .reset-btn { background: #555; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; margin-top: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -63,30 +75,40 @@
 
     <div class="content">
         <h1 id="site-title">Windecs Space</h1>
-        <p id="site-desc">Мемный гусь следит за тобой. Нажми кнопку админки снизу справа.</p>
+        <p id="site-desc">Твой интерактивный профиль готов. Проверь админку!</p>
         <a href="https://guns.lol" id="site-btn" class="btn">Guns.lol Profile</a>
     </div>
 
-    <!-- ЯРКАЯ КНОПКА -->
-    <button class="login-trigger" onclick="login()">ОТКРЫТЬ АДМИНКУ</button>
+    <button class="login-trigger" onclick="login()">⚡ ОТКРЫТЬ АДМИНКУ</button>
 
     <div id="admin-ui">
-        <h3 style="color:var(--accent); margin-top:0;">⚙️ ADMIN PANEL</h3>
+        <h3 style="color:var(--accent); margin: 0 0 15px 0;">🛠 СИСТЕМА УПРАВЛЕНИЯ</h3>
+        
+        <label style="font-size: 12px;">Заголовок и Описание:</label>
         <input type="text" id="edit-title" placeholder="Новый заголовок">
         <input type="text" id="edit-desc" placeholder="Новое описание">
-        <input type="color" id="edit-color" style="height:40px; padding:0;">
-        <button class="save-btn" onclick="save()">СОХРАНИТЬ</button>
-        <button class="reset-btn" onclick="resetAll()">СБРОСИТЬ ВСЁ</button>
-        <button class="reset-btn" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ</button>
+        <input type="color" id="edit-color" style="height:40px; padding:2px; cursor:pointer;">
+
+        <label style="font-size: 12px;">Быстрые действия:</label>
+        <div class="admin-grid">
+            <button class="action-btn" onclick="alert('Взлом Пентагона... \nСтатус: 1%')">Взломать всё</button>
+            <button class="action-btn" onclick="alert('Сайт удален! \n(Шучу, он на месте)')">Удалить сайт</button>
+            <button class="action-btn" onclick="alert('Гусь стал в два раза злее!')">Злой гусь</button>
+            <button class="action-btn" onclick="location.reload()">Перезагрузить</button>
+        </div>
+
+        <button class="save-btn" onclick="save()">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+        <button class="reset-btn" onclick="resetAll()">СБРОСИТЬ НАСТРОЙКИ</button>
+        <button class="reset-btn" style="background:#cc0000" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ ПАНЕЛЬ</button>
     </div>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const goose = document.getElementById('goose');
-        let mX = 0, mY = 0, gX = 0, gY = 0;
+        let mX = window.innerWidth/2, mY = window.innerHeight/2, gX = 0, gY = 0;
 
-        // Загрузка
+        // Загрузка данных
         window.onload = () => {
             if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
             if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
@@ -97,19 +119,21 @@
             }
         };
 
-        // Гусь
+        // Логика гуся
         window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
-        function anim() {
-            gX += (mX - gX) * 0.1; gY += (mY - gY) * 0.1;
-            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${mX > gX ? 'scaleX(-1)' : 'scaleX(1)'}`;
-            requestAnimationFrame(anim);
+        function animGoose() {
+            gX += (mX - gX) * 0.12; 
+            gY += (mY - gY) * 0.12;
+            const flip = mX > gX ? 'scaleX(-1)' : 'scaleX(1)';
+            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${flip}`;
+            requestAnimationFrame(animGoose);
         }
-        anim();
+        animGoose();
 
-        // Частицы
+        // Фон с частицами
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         const pts = [];
-        for(let i=0; i<50; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*1.5-0.7, vy: Math.random()*1.5-0.7});
+        for(let i=0; i<60; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*1.2-0.6, vy: Math.random()*1.2-0.6});
         function draw() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx.fillStyle = "rgba(255,255,255,0.2)";
@@ -123,23 +147,27 @@
         }
         draw();
 
-        // Функции админки
+        // Админка
         function login() {
-            if(prompt("Введи код:") === "1121314151") {
+            if(prompt("Введи код доступа (1121314151):") === "1121314151") {
                 document.getElementById('admin-ui').style.display = 'block';
             } else {
-                alert("Неверно!");
+                alert("Ошибка! Доступ запрещен.");
             }
         }
+
         function save() {
-            localStorage.setItem('w-title', document.getElementById('edit-title').value);
-            localStorage.setItem('w-desc', document.getElementById('edit-desc').value);
+            localStorage.setItem('w-title', document.getElementById('edit-title').value || document.getElementById('site-title').innerText);
+            localStorage.setItem('w-desc', document.getElementById('edit-desc').value || document.getElementById('site-desc').innerText);
             localStorage.setItem('w-color', document.getElementById('edit-color').value);
             location.reload();
         }
+
         function resetAll() {
-            localStorage.clear();
-            location.reload();
+            if(confirm("Сбросить все настройки к стандартным?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
