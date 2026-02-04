@@ -268,81 +268,123 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Secret Access</title>
+    <title>Windecs Dashboard</title>
     <style>
+        :root { --bg: #ffffff; --text: #333; --accent: #28a745; }
         body { 
-            margin: 0; padding: 50px; 
-            font-family: 'Courier New', Courier, monospace; 
-            background: #1a1a1a; color: #00ff00; 
-            transition: 0.5s;
+            margin: 0; padding: 40px; 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); color: var(--text);
+            transition: 0.3s;
         }
 
-        /* Обычный контент */
-        #public-content { text-align: center; }
-        
-        /* Скрытая админка */
-        #admin-panel { 
+        /* Главная страница */
+        #main-ui { text-align: left; max-width: 800px; margin: 0 auto; }
+        .hero-title { font-size: 3rem; margin: 0; color: var(--accent); }
+        .hero-desc { font-size: 1.2rem; opacity: 0.8; }
+
+        /* Админка */
+        #admin-ui { 
             display: none; 
-            border: 2px solid #00ff00; 
-            padding: 20px; 
-            margin-top: 20px;
-            box-shadow: 0 0 20px #00ff00;
+            background: #111; color: #0f0; 
+            padding: 30px; border-radius: 15px;
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            z-index: 100;
         }
 
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        .admin-input { 
+            width: 100%; padding: 10px; margin: 10px 0;
+            background: #222; border: 1px solid #0f0; color: #0f0;
         }
 
-        button {
-            background: #222; color: #00ff00;
-            border: 1px solid #00ff00; padding: 10px;
-            cursor: pointer; font-family: inherit;
+        .btn { 
+            padding: 10px 20px; cursor: pointer; border: none; 
+            border-radius: 5px; font-weight: bold; 
         }
-
-        button:hover { background: #00ff00; color: #000; }
-
-        .secret-btn { margin-top: 50px; opacity: 0.3; }
+        .btn-save { background: #0f0; color: #000; }
+        .btn-exit { background: #444; color: #fff; margin-top: 10px; }
+        
+        .login-trigger { 
+            position: fixed; bottom: 10px; right: 10px; 
+            opacity: 0.1; cursor: pointer; border: none; background: none;
+        }
     </style>
 </head>
 <body>
 
-    <!-- То, что видят все -->
-    <div id="public-content">
-        <h1>Сайт Windecs</h1>
-        <p>Обычная страница для обычных людей.</p>
-        <button class="secret-btn" onclick="askCode()">Вход для персонала</button>
+    <!-- ПОЛЬЗОВАТЕЛЬСКИЙ ИНТЕРФЕЙС -->
+    <div id="main-ui">
+        <h1 id="site-title" class="hero-title">Windecs Project</h1>
+        <p id="site-desc" class="hero-desc">Добро пожаловать на мой персональный сайт.</p>
+        <a href="https://guns.lol" id="site-btn" class="btn" style="background: var(--accent); color: white; text-decoration: none; display: inline-block;">Открыть Guns.lol</a>
     </div>
 
-    <!-- Секретная панель (скрыта по умолчанию) -->
-    <div id="admin-panel">
-        <h2>⚡ ADMIN PANEL ACTIVATED ⚡</h2>
-        <p>Добро пожаловать, Windecs. Доступ разрешен.</p>
+    <!-- ТРИГГЕР ЛОГИНА (почти невидим) -->
+    <button class="login-trigger" onclick="login()">Админ</button>
+
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+    <div id="admin-ui">
+        <h3>🛠 CONTROL PANEL</h3>
+        <label>Заголовок:</label>
+        <input type="text" id="edit-title" class="admin-input" placeholder="Новый заголовок">
         
-        <div class="admin-grid">
-            <button onclick="alert('Взлом пентагона... 1%')">Удалить сайт</button>
-            <button onclick="alert('Цвет изменен!')">Сменить тему</button>
-            <button onclick="alert('Гусь забанен!')">Выгнать гуся</button>
-            <button onclick="location.reload()">Выйти из админки</button>
-        </div>
+        <label>Описание:</label>
+        <input type="text" id="edit-desc" class="admin-input" placeholder="Новое описание">
+
+        <label>Цвет темы:</label>
+        <input type="color" id="edit-color" class="admin-input" style="height: 50px;">
+
+        <button class="btn btn-save" onclick="saveChanges()">ПРИМЕНИТЬ</button>
+        <button class="btn btn-exit" onclick="closeAdmin()">ВЫЙТИ</button>
     </div>
 
     <script>
-        function askCode() {
-            // Запрашиваем код через всплывающее окно
-            const code = prompt("Введите секретный ключ доступа:");
-            
-            if (code === "1121314151") {
-                alert("ДОСТУП ПОДТВЕРЖДЕН");
-                // Скрываем обычный контент и показываем админку
-                document.getElementById('public-content').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                document.body.style.background = "#000";
-            } else if (code !== null) {
-                alert("ОШИБКА ДОСТУПА. СИСТЕМА ЗАБЛОКИРОВАНА (шутка)");
+        // Загрузка настроек при старте
+        window.onload = function() {
+            if(localStorage.getItem('title')) document.getElementById('site-title').innerText = localStorage.getItem('title');
+            if(localStorage.getItem('desc')) document.getElementById('site-desc').innerText = localStorage.getItem('desc');
+            if(localStorage.getItem('color')) {
+                const color = localStorage.getItem('color');
+                document.documentElement.style.setProperty('--accent', color);
             }
+        };
+
+        function login() {
+            const pass = prompt("PASSWORD:");
+            if (pass === "1121314151") {
+                document.getElementById('admin-ui').style.display = 'block';
+                // Предзаполняем поля текущими значениями
+                document.getElementById('edit-title').value = document.getElementById('site-title').innerText;
+                document.getElementById('edit-desc').value = document.getElementById('site-desc').innerText;
+            } else {
+                alert("ACCESS DENIED");
+            }
+        }
+
+        function saveChanges() {
+            const newTitle = document.getElementById('edit-title').value;
+            const newDesc = document.getElementById('edit-desc').value;
+            const newColor = document.getElementById('edit-color').value;
+
+            // Применяем сразу
+            document.getElementById('site-title').innerText = newTitle;
+            document.getElementById('site-desc').innerText = newDesc;
+            document.documentElement.style.setProperty('--accent', newColor);
+            document.getElementById('site-btn').style.background = newColor;
+
+            // Сохраняем навсегда в этом браузере
+            localStorage.setItem('title', newTitle);
+            localStorage.setItem('desc', newDesc);
+            localStorage.setItem('color', newColor);
+
+            alert("Данные обновлены!");
+        }
+
+        function closeAdmin() {
+            document.getElementById('admin-ui').style.display = 'none';
         }
     </script>
 </body>
