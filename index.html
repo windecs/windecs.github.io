@@ -2,10 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерактивный сайт</title>
+    <title>Windecs Space</title>
     <style>
         :root { --accent: #00b894; }
-        
         body { 
             margin: 0; padding: 80px 40px;
             font-family: 'Inter', sans-serif;
@@ -15,96 +14,133 @@
             overflow: hidden;
         }
 
-        /* Слой с частицами */
-        #canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
 
-        /* Анимированный элемент */
-        #animated-element {
+        #goose {
             position: fixed; font-size: 60px; pointer-events: none;
-            z-index: 1000; left: 0; top: 0; user-select: none;
+            z-index: 100; left: 0; top: 0; user-select: none;
             will-change: transform;
         }
 
-        /* Основной текст */
         .content { position: relative; z-index: 10; max-width: 700px; }
-        
-        h1 { font-size: 4rem; margin: 0; color: var(--accent); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        h1 { font-size: 4rem; margin: 0; color: var(--accent); }
         p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
 
         .btn {
             display: inline-block; padding: 18px 35px; border-radius: 12px;
             text-decoration: none; font-weight: bold; color: white;
             background: var(--accent); border: none; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: 0.3s;
         }
 
+        /* ТА САМАЯ КНОПКА АДМИНКИ */
+        .login-trigger { 
+            position: fixed; bottom: 20px; right: 20px; 
+            z-index: 99999; /* Поверх всего */
+            background: #ff4757; color: white;
+            border: none; padding: 10px 15px;
+            border-radius: 8px; font-weight: bold;
+            cursor: pointer; opacity: 1;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        /* ПАНЕЛЬ */
+        #admin-ui { 
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: #111;
+            padding: 30px; border-radius: 15px; border: 2px solid var(--accent);
+            z-index: 100000; width: 300px;
+        }
+        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #0f0; }
+        .save-btn { background: #28a745; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; }
+        .reset-btn { background: #555; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="animated-element">✨</div>
+    <div id="goose">🔪🪿</div>
     <canvas id="canvas"></canvas>
 
     <div class="content">
-        <h1 id="site-title">Название Сайта</h1>
-        <p id="site-desc">Интерактивный сайт с интересными элементами.</p>
-        <a href="#" id="site-btn" class="btn">Подробнее →</a>
+        <h1 id="site-title">Windecs Space</h1>
+        <p id="site-desc">Мемный гусь следит за тобой. Нажми кнопку админки снизу справа.</p>
+        <a href="https://guns.lol" id="site-btn" class="btn">Guns.lol Profile</a>
+    </div>
+
+    <!-- ЯРКАЯ КНОПКА -->
+    <button class="login-trigger" onclick="login()">ОТКРЫТЬ АДМИНКУ</button>
+
+    <div id="admin-ui">
+        <h3 style="color:var(--accent); margin-top:0;">⚙️ ADMIN PANEL</h3>
+        <input type="text" id="edit-title" placeholder="Новый заголовок">
+        <input type="text" id="edit-desc" placeholder="Новое описание">
+        <input type="color" id="edit-color" style="height:40px; padding:0;">
+        <button class="save-btn" onclick="save()">СОХРАНИТЬ</button>
+        <button class="reset-btn" onclick="resetAll()">СБРОСИТЬ ВСЁ</button>
+        <button class="reset-btn" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ</button>
     </div>
 
     <script>
-        // --- ЧАСТИЦЫ ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const particles = [];
-        for(let i=0; i<70; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: Math.random() * 2 - 1,
-                vy: Math.random() * 2 - 1
-            });
+        const goose = document.getElementById('goose');
+        let mX = 0, mY = 0, gX = 0, gY = 0;
+
+        // Загрузка
+        window.onload = () => {
+            if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
+            if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
+            if(localStorage.getItem('w-color')) {
+                const c = localStorage.getItem('w-color');
+                document.documentElement.style.setProperty('--accent', c);
+                document.getElementById('site-btn').style.background = c;
+            }
+        };
+
+        // Гусь
+        window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
+        function anim() {
+            gX += (mX - gX) * 0.1; gY += (mY - gY) * 0.1;
+            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${mX > gX ? 'scaleX(-1)' : 'scaleX(1)'}`;
+            requestAnimationFrame(anim);
         }
-        function drawParticles() {
+        anim();
+
+        // Частицы
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const pts = [];
+        for(let i=0; i<50; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*1.5-0.7, vy: Math.random()*1.5-0.7});
+        function draw() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx.fillStyle = "rgba(255,255,255,0.2)";
-            particles.forEach(p => {
+            pts.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if(p.x<0 || p.x>canvas.width) p.vx*=-1;
                 if(p.y<0 || p.y>canvas.height) p.vy*=-1;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
             });
-            requestAnimationFrame(drawParticles);
+            requestAnimationFrame(draw);
         }
-        drawParticles();
+        draw();
 
-        // --- Анимированный элемент ---
-        const animatedElement = document.getElementById('animated-element');
-        let mx = 0, my = 0, ex = 0, ey = 0;
-        window.onmousemove = (e) => { mx = e.clientX; my = e.clientY; };
-        function moveElement() {
-            ex += (mx - ex) * 0.1; ey += (my - ey) * 0.1;
-            const flip = mx > ex ? 'scaleX(-1)' : 'scaleX(1)';
-            animatedElement.style.transform = `translate(${ex-30}px, ${ey-30}px) ${flip}`;
-            requestAnimationFrame(moveElement);
-        }
-        moveElement();
-
-        // --- СОХРАНЕНИЕ ---
-        function updateUI(t, d, c) {
-            if(t) document.getElementById('site-title').innerText = t;
-            if(d) document.getElementById('site-desc').innerText = d;
-            if(c) {
-                document.documentElement.style.setProperty('--accent', c);
-                document.getElementById('site-btn').style.background = c;
+        // Функции админки
+        function login() {
+            if(prompt("Введи код 1121314151:") === "1121314151") {
+                document.getElementById('admin-ui').style.display = 'block';
+            } else {
+                alert("Неверно!");
             }
         }
-
-        // Загрузка при старте
-        window.onload = () => {
-            updateUI(localStorage.getItem('title'), localStorage.getItem('desc'), localStorage.getItem('color'));
-        };
+        function save() {
+            localStorage.setItem('w-title', document.getElementById('edit-title').value);
+            localStorage.setItem('w-desc', document.getElementById('edit-desc').value);
+            localStorage.setItem('w-color', document.getElementById('edit-color').value);
+            location.reload();
+        }
+        function resetAll() {
+            localStorage.clear();
+            location.reload();
+        }
     </script>
 </body>
 </html>
