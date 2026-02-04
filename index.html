@@ -1,276 +1,11 @@
-<h1>Привет, это мой сайт!</h1>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Windecs Interactive</title>
-    <style>
-        body { 
-            margin: 0; 
-            padding: 80px 40px;
-            font-family: 'Inter', sans-serif;
-            background: #0f0c29; /* Глубокий космический цвет */
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            min-height: 100vh;
-            color: white;
-            overflow: hidden; /* Чтобы частицы не создавали прокрутку */
-        }
-
-        /* Холст для частиц */
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 0;
-        }
-
-        .content {
-            position: relative;
-            z-index: 1; /* Чтобы текст был поверх частиц */
-            max-width: 700px;
-            opacity: 0;
-            animation: fadeInUp 1.5s ease forwards;
-        }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(50px); }
-        }
-
-        h1 { font-size: 4rem; margin: 0; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
-        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
-
-        .my-button {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-weight: bold;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: 0.4s;
-        }
-
-        .my-button:hover {
-            background: white;
-            color: #0f0c29;
-            box-shadow: 0 0 50px rgba(255,255,255,0.5);
-            transform: translateY(-5px);
-        }
-    </style>
-</head>
-<body>
-
-    <canvas id="canvas"></canvas>
-
-    <div class="content">
-        <h1>Windecs</h1>
-        <p>Интерактивная визитка. Двигай мышкой, чтобы управлять частицами.</p>
-        <a href="https://guns.lol/windecs" class="my-button">Visit Guns.lol →</a>
-    </div>
-
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let mouse = { x: null, y: null, radius: 150 };
-
-        window.addEventListener('mousemove', function(event) {
-            mouse.x = event.x;
-            mouse.y = event.y;
-        });
-
-        class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x;
-                this.y = y;
-                this.directionX = directionX;
-                this.directionY = directionY;
-                this.size = size;
-                this.color = color;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = '#fff';
-                ctx.fill();
-            }
-            update() {
-                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
-                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
-                
-                // Взаимодействие с мышью
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx*dx + dy*dy);
-                if (distance < mouse.radius + this.size){
-                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 10;
-                    if (mouse.x > this.x && this.x > this.size * 10) this.x -= 10;
-                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 10;
-                    if (mouse.y > this.y && this.y > this.size * 10) this.y -= 10;
-                }
-                this.x += this.directionX;
-                this.y += this.directionY;
-                this.draw();
-            }
-        }
-
-        function init() {
-            particlesArray = [];
-            let numberOfParticles = (canvas.height * canvas.width) / 9000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = (Math.random() * 3) + 1;
-                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-                let directionX = (Math.random() * 5) - 2.5;
-                let directionY = (Math.random() * 5) - 2.5;
-                let color = '#8C5523';
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
-            }
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-        }
-
-        window.addEventListener('resize', function(){
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-            init();
-        });
-
-        init();
-        animate();
-    </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h1> Обо мне </h1>
-
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Windecs Goose</title>
-    <style>
-        body { 
-            margin: 0; 
-            padding: 80px 40px;
-            font-family: sans-serif;
-            background: #0f0c29;
-            color: white;
-            min-height: 100vh;
-            overflow: hidden;
-            cursor: default; /* Возвращаем обычную стрелку для теста */
-        }
-        /* Гусь */
-        #goose {
-            position: fixed;
-            font-size: 50px;
-            pointer-events: none; /* Чтобы не мешал кликать */
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            user-select: none;
-            will-change: transform;
-        }
-        .content { position: relative; z-index: 10; }
-        .my-button {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="goose">🪿</div>
-
-    <div class="content">
-        <h1>Windecs</h1>
-        <p>Если гусь не двигается, попробуй пошевелить мышкой активнее!</p>
-        <a href="https://guns.lol" class="my-button">Visit Profile →</a>
-    </div>
-
-    <script>
-        const goose = document.getElementById('goose');
-        let mouseX = 0;
-        let mouseY = 0;
-        let gooseX = 0;
-        let gooseY = 0;
-
-        // Отслеживаем мышь
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        // Функция плавной анимации
-        function follow() {
-            // Скорость погони (0.05 — плавно, 0.2 — быстро)
-            let distX = mouseX - gooseX;
-            let distY = mouseY - gooseY;
-
-            gooseX += distX * 0.08;
-            gooseY += distY * 0.08;
-
-            // Сдвигаем гуся (центрируем по клюву)
-            goose.style.transform = `translate(${gooseX - 25}px, ${gooseY - 25}px)`;
-
-            // Разворот влево/вправо
-            if (distX > 0) {
-                goose.style.transform += " scaleX(-1)";
-            } else {
-                goose.style.transform += " scaleX(1)";
-            }
-
-            requestAnimationFrame(follow);
-        }
-
-        follow();
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Windecs Ultimate Space</title>
+    <title>Интерактивный сайт</title>
     <style>
         :root { --accent: #00b894; }
+        
         body { 
             margin: 0; padding: 80px 40px;
             font-family: 'Inter', sans-serif;
@@ -280,14 +15,17 @@
             overflow: hidden;
         }
 
-        canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+        /* Слой с частицами */
+        #canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
-        #goose {
+        /* Анимированный элемент */
+        #animated-element {
             position: fixed; font-size: 60px; pointer-events: none;
-            z-index: 9999; left: 0; top: 0; user-select: none;
+            z-index: 1000; left: 0; top: 0; user-select: none;
             will-change: transform;
         }
 
+        /* Основной текст */
         .content { position: relative; z-index: 10; max-width: 700px; }
         
         h1 { font-size: 4rem; margin: 0; color: var(--accent); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
@@ -300,101 +38,73 @@
             transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        /* Админка */
-        #admin-ui { 
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); background: rgba(0,0,0,0.95);
-            padding: 30px; border-radius: 15px; border: 1px solid var(--accent);
-            z-index: 10000; width: 300px; backdrop-filter: blur(10px);
-        }
-        input { width: 100%; padding: 8px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; }
-        
-        .login-trigger { position: fixed; bottom: 10px; right: 10px; opacity: 0.05; cursor: pointer; border: none; background: none; color: white; }
-        
-        .reset-btn { background: #ff4757; margin-top: 10px; width: 100%; }
-        .save-btn { background: #28a745; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="goose">🔪🪿</div>
+    <div id="animated-element">✨</div>
     <canvas id="canvas"></canvas>
 
     <div class="content">
-        <h1 id="site-title">Windecs</h1>
-        <p id="site-desc">Интерактивный сайт с секретной админкой и очень опасным гусем.</p>
-        <a href="https://guns.lol" id="site-btn" class="btn">Visit Guns.lol →</a>
-    </div>
-
-    <button class="login-trigger" onclick="login()">admin</button>
-
-    <div id="admin-ui">
-        <h3 style="color:var(--accent)">⚙️ ADMIN PANEL</h3>
-        <input type="text" id="edit-title" placeholder="Заголовок">
-        <input type="text" id="edit-desc" placeholder="Описание">
-        <input type="color" id="edit-color" style="height:40px">
-        <button class="btn save-btn" onclick="save()">СОХРАНИТЬ</button>
-        <button class="btn reset-btn" onclick="resetAll()">СБРОСИТЬ ВСЁ</button>
-        <button class="btn" style="background:#555; width:100%; margin-top:5px" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ</button>
+        <h1 id="site-title">Название Сайта</h1>
+        <p id="site-desc">Интерактивный сайт с интересными элементами.</p>
+        <a href="#" id="site-btn" class="btn">Подробнее →</a>
     </div>
 
     <script>
+        // --- ЧАСТИЦЫ ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const goose = document.getElementById('goose');
-        let mX = 0, mY = 0, gX = 0, gY = 0;
-
-        // Загрузка настроек
-        function load() {
-            if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
-            if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
-            if(localStorage.getItem('w-color')) {
-                const c = localStorage.getItem('w-color');
-                document.documentElement.style.setProperty('--accent', c);
-            }
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = [];
+        for(let i=0; i<70; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1
+            });
         }
-        load();
-
-        // Мышь и Гусь
-        window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
-        function anim() {
-            gX += (mX - gX) * 0.1; gY += (mY - gY) * 0.1;
-            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${mX > gX ? 'scaleX(-1)' : 'scaleX(1)'}`;
-            requestAnimationFrame(anim);
-        }
-        anim();
-
-        // Частицы
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const pts = [];
-        for(let i=0; i<60; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*2-1, vy: Math.random()*2-1});
-        function drawPts() {
+        function drawParticles() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.3)";
-            pts.forEach(p => {
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if(p.x<0 || p.x>canvas.width) p.vx*=-1;
                 if(p.y<0 || p.y>canvas.height) p.vy*=-1;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
             });
-            requestAnimationFrame(drawPts);
+            requestAnimationFrame(drawParticles);
         }
-        drawPts();
+        drawParticles();
 
-        // Админка
-        function login() {
-            if(prompt("Пароль:") === "1121314151") document.getElementById('admin-ui').style.display='block';
+        // --- Анимированный элемент ---
+        const animatedElement = document.getElementById('animated-element');
+        let mx = 0, my = 0, ex = 0, ey = 0;
+        window.onmousemove = (e) => { mx = e.clientX; my = e.clientY; };
+        function moveElement() {
+            ex += (mx - ex) * 0.1; ey += (my - ey) * 0.1;
+            const flip = mx > ex ? 'scaleX(-1)' : 'scaleX(1)';
+            animatedElement.style.transform = `translate(${ex-30}px, ${ey-30}px) ${flip}`;
+            requestAnimationFrame(moveElement);
         }
-        function save() {
-            localStorage.setItem('w-title', document.getElementById('edit-title').value);
-            localStorage.setItem('w-desc', document.getElementById('edit-desc').value);
-            localStorage.setItem('w-color', document.getElementById('edit-color').value);
-            location.reload();
+        moveElement();
+
+        // --- СОХРАНЕНИЕ ---
+        function updateUI(t, d, c) {
+            if(t) document.getElementById('site-title').innerText = t;
+            if(d) document.getElementById('site-desc').innerText = d;
+            if(c) {
+                document.documentElement.style.setProperty('--accent', c);
+                document.getElementById('site-btn').style.background = c;
+            }
         }
-        function resetAll() {
-            localStorage.clear();
-            location.reload();
-        }
+
+        // Загрузка при старте
+        window.onload = () => {
+            updateUI(localStorage.getItem('title'), localStorage.getItem('desc'), localStorage.getItem('color'));
+        };
     </script>
 </body>
 </html>
