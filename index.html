@@ -179,144 +179,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Windecs Goose Edition</title>
+    <title>Windecs Goose</title>
     <style>
         body { 
             margin: 0; 
             padding: 80px 40px;
-            font-family: 'Inter', sans-serif;
+            font-family: sans-serif;
             background: #0f0c29;
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            min-height: 100vh;
             color: white;
+            min-height: 100vh;
             overflow: hidden;
-            cursor: none; /* Скрываем стандартный курсор, чтобы гусь был вместо него */
+            cursor: default; /* Возвращаем обычную стрелку для теста */
         }
-
-        #canvas { position: absolute; top: 0; left: 0; z-index: 0; }
-
-        /* Стиль нашего гуся */
+        /* Гусь */
         #goose {
             position: fixed;
-            font-size: 40px;
-            pointer-events: none; /* Чтобы гусь не мешал нажимать на кнопки */
+            font-size: 50px;
+            pointer-events: none; /* Чтобы не мешал кликать */
             z-index: 9999;
-            transition: transform 0.1s ease;
+            left: 0;
+            top: 0;
             user-select: none;
+            will-change: transform;
         }
-
-        .content {
-            position: relative;
-            z-index: 1;
-            max-width: 700px;
-            opacity: 0;
-            animation: fadeInUp 1.5s ease forwards;
-        }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-            from { opacity: 0; transform: translateY(50px); }
-        }
-
-        h1 { font-size: 4rem; margin: 0; }
-        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
-
+        .content { position: relative; z-index: 10; }
         .my-button {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
+            background: #28a745;
             color: white;
-            padding: 20px 40px;
-            border-radius: 15px;
+            padding: 15px 30px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: bold;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer; /* На кнопке курсор появится снова для удобства */
         }
     </style>
 </head>
 <body>
 
     <div id="goose">🪿</div>
-    <canvas id="canvas"></canvas>
 
     <div class="content">
         <h1>Windecs</h1>
-        <p>Берегись! Гусь следит за твоим курсором.</p>
-        <a href="https://guns.lol" class="my-button">Visit Guns.lol →</a>
+        <p>Если гусь не двигается, попробуй пошевелить мышкой активнее!</p>
+        <a href="https://guns.lol" class="my-button">Visit Profile →</a>
     </div>
 
     <script>
-        // Код для частиц (оставляем старый)
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let mouse = { x: canvas.width/2, y: canvas.height/2, radius: 150 };
         const goose = document.getElementById('goose');
-
-        // Плавное следование гуся
+        let mouseX = 0;
+        let mouseY = 0;
         let gooseX = 0;
         let gooseY = 0;
 
-        window.addEventListener('mousemove', function(e) {
-            mouse.x = e.x;
-            mouse.y = e.y;
+        // Отслеживаем мышь
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
 
-        function moveGoose() {
-            // Математика плавности (гусь догоняет курсор)
-            let dx = mouse.x - gooseX;
-            let dy = mouse.y - gooseY;
-            
-            gooseX += dx * 0.1; 
-            gooseY += dy * 0.1;
+        // Функция плавной анимации
+        function follow() {
+            // Скорость погони (0.05 — плавно, 0.2 — быстро)
+            let distX = mouseX - gooseX;
+            let distY = mouseY - gooseY;
 
-            goose.style.left = gooseX - 20 + 'px';
-            goose.style.top = gooseY - 20 + 'px';
+            gooseX += distX * 0.08;
+            gooseY += distY * 0.08;
 
-            // Поворачиваем гуся в зависимости от направления движения
-            if (dx > 0) goose.style.transform = 'scaleX(-1)';
-            else goose.style.transform = 'scaleX(1)';
+            // Сдвигаем гуся (центрируем по клюву)
+            goose.style.transform = `translate(${gooseX - 25}px, ${gooseY - 25}px)`;
 
-            requestAnimationFrame(moveGoose);
+            // Разворот влево/вправо
+            if (distX > 0) {
+                goose.style.transform += " scaleX(-1)";
+            } else {
+                goose.style.transform += " scaleX(1)";
+            }
+
+            requestAnimationFrame(follow);
         }
 
-        // Логика частиц (кратко)
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
-            }
-            draw() {
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        const particles = [];
-        for (let i = 0; i < 50; i++) particles.push(new Particle());
-
-        function animate() {
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
-
-        animate();
-        moveGoose();
+        follow();
     </script>
 </body>
 </html>
