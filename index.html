@@ -268,123 +268,132 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Windecs Dashboard</title>
+    <title>Windecs Ultimate Space</title>
     <style>
-        :root { --bg: #ffffff; --text: #333; --accent: #28a745; }
+        :root { --accent: #00b894; }
         body { 
-            margin: 0; padding: 40px; 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); color: var(--text);
-            transition: 0.3s;
+            margin: 0; padding: 80px 40px;
+            font-family: 'Inter', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            min-height: 100vh; color: white;
+            overflow: hidden;
         }
 
-        /* Главная страница */
-        #main-ui { text-align: left; max-width: 800px; margin: 0 auto; }
-        .hero-title { font-size: 3rem; margin: 0; color: var(--accent); }
-        .hero-desc { font-size: 1.2rem; opacity: 0.8; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+
+        #goose {
+            position: fixed; font-size: 60px; pointer-events: none;
+            z-index: 9999; left: 0; top: 0; user-select: none;
+            will-change: transform;
+        }
+
+        .content { position: relative; z-index: 10; max-width: 700px; }
+        
+        h1 { font-size: 4rem; margin: 0; color: var(--accent); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
+
+        .btn {
+            display: inline-block; padding: 18px 35px; border-radius: 12px;
+            text-decoration: none; font-weight: bold; color: white;
+            background: var(--accent); border: none; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
 
         /* Админка */
         #admin-ui { 
-            display: none; 
-            background: #111; color: #0f0; 
-            padding: 30px; border-radius: 15px;
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%; max-width: 500px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            z-index: 100;
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: rgba(0,0,0,0.95);
+            padding: 30px; border-radius: 15px; border: 1px solid var(--accent);
+            z-index: 10000; width: 300px; backdrop-filter: blur(10px);
         }
-
-        .admin-input { 
-            width: 100%; padding: 10px; margin: 10px 0;
-            background: #222; border: 1px solid #0f0; color: #0f0;
-        }
-
-        .btn { 
-            padding: 10px 20px; cursor: pointer; border: none; 
-            border-radius: 5px; font-weight: bold; 
-        }
-        .btn-save { background: #0f0; color: #000; }
-        .btn-exit { background: #444; color: #fff; margin-top: 10px; }
+        input { width: 100%; padding: 8px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; }
         
-        .login-trigger { 
-            position: fixed; bottom: 10px; right: 10px; 
-            opacity: 0.1; cursor: pointer; border: none; background: none;
-        }
+        .login-trigger { position: fixed; bottom: 10px; right: 10px; opacity: 0.05; cursor: pointer; border: none; background: none; color: white; }
+        
+        .reset-btn { background: #ff4757; margin-top: 10px; width: 100%; }
+        .save-btn { background: #28a745; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- ПОЛЬЗОВАТЕЛЬСКИЙ ИНТЕРФЕЙС -->
-    <div id="main-ui">
-        <h1 id="site-title" class="hero-title">Windecs Project</h1>
-        <p id="site-desc" class="hero-desc">Добро пожаловать на мой персональный сайт.</p>
-        <a href="https://guns.lol" id="site-btn" class="btn" style="background: var(--accent); color: white; text-decoration: none; display: inline-block;">Открыть Guns.lol</a>
+    <div id="goose">🔪🪿</div>
+    <canvas id="canvas"></canvas>
+
+    <div class="content">
+        <h1 id="site-title">Windecs</h1>
+        <p id="site-desc">Интерактивный сайт с секретной админкой и очень опасным гусем.</p>
+        <a href="https://guns.lol" id="site-btn" class="btn">Visit Guns.lol →</a>
     </div>
 
-    <!-- ТРИГГЕР ЛОГИНА (почти невидим) -->
-    <button class="login-trigger" onclick="login()">Админ</button>
+    <button class="login-trigger" onclick="login()">admin</button>
 
-    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
     <div id="admin-ui">
-        <h3>🛠 CONTROL PANEL</h3>
-        <label>Заголовок:</label>
-        <input type="text" id="edit-title" class="admin-input" placeholder="Новый заголовок">
-        
-        <label>Описание:</label>
-        <input type="text" id="edit-desc" class="admin-input" placeholder="Новое описание">
-
-        <label>Цвет темы:</label>
-        <input type="color" id="edit-color" class="admin-input" style="height: 50px;">
-
-        <button class="btn btn-save" onclick="saveChanges()">ПРИМЕНИТЬ</button>
-        <button class="btn btn-exit" onclick="closeAdmin()">ВЫЙТИ</button>
+        <h3 style="color:var(--accent)">⚙️ ADMIN PANEL</h3>
+        <input type="text" id="edit-title" placeholder="Заголовок">
+        <input type="text" id="edit-desc" placeholder="Описание">
+        <input type="color" id="edit-color" style="height:40px">
+        <button class="btn save-btn" onclick="save()">СОХРАНИТЬ</button>
+        <button class="btn reset-btn" onclick="resetAll()">СБРОСИТЬ ВСЁ</button>
+        <button class="btn" style="background:#555; width:100%; margin-top:5px" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ</button>
     </div>
 
     <script>
-        // Загрузка настроек при старте
-        window.onload = function() {
-            if(localStorage.getItem('title')) document.getElementById('site-title').innerText = localStorage.getItem('title');
-            if(localStorage.getItem('desc')) document.getElementById('site-desc').innerText = localStorage.getItem('desc');
-            if(localStorage.getItem('color')) {
-                const color = localStorage.getItem('color');
-                document.documentElement.style.setProperty('--accent', color);
-            }
-        };
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const goose = document.getElementById('goose');
+        let mX = 0, mY = 0, gX = 0, gY = 0;
 
+        // Загрузка настроек
+        function load() {
+            if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
+            if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
+            if(localStorage.getItem('w-color')) {
+                const c = localStorage.getItem('w-color');
+                document.documentElement.style.setProperty('--accent', c);
+            }
+        }
+        load();
+
+        // Мышь и Гусь
+        window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
+        function anim() {
+            gX += (mX - gX) * 0.1; gY += (mY - gY) * 0.1;
+            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${mX > gX ? 'scaleX(-1)' : 'scaleX(1)'}`;
+            requestAnimationFrame(anim);
+        }
+        anim();
+
+        // Частицы
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const pts = [];
+        for(let i=0; i<60; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*2-1, vy: Math.random()*2-1});
+        function drawPts() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
+            pts.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
+                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(drawPts);
+        }
+        drawPts();
+
+        // Админка
         function login() {
-            const pass = prompt("PASSWORD:");
-            if (pass === "1121314151") {
-                document.getElementById('admin-ui').style.display = 'block';
-                // Предзаполняем поля текущими значениями
-                document.getElementById('edit-title').value = document.getElementById('site-title').innerText;
-                document.getElementById('edit-desc').value = document.getElementById('site-desc').innerText;
-            } else {
-                alert("ACCESS DENIED");
-            }
+            if(prompt("Пароль:") === "1121314151") document.getElementById('admin-ui').style.display='block';
         }
-
-        function saveChanges() {
-            const newTitle = document.getElementById('edit-title').value;
-            const newDesc = document.getElementById('edit-desc').value;
-            const newColor = document.getElementById('edit-color').value;
-
-            // Применяем сразу
-            document.getElementById('site-title').innerText = newTitle;
-            document.getElementById('site-desc').innerText = newDesc;
-            document.documentElement.style.setProperty('--accent', newColor);
-            document.getElementById('site-btn').style.background = newColor;
-
-            // Сохраняем навсегда в этом браузере
-            localStorage.setItem('title', newTitle);
-            localStorage.setItem('desc', newDesc);
-            localStorage.setItem('color', newColor);
-
-            alert("Данные обновлены!");
+        function save() {
+            localStorage.setItem('w-title', document.getElementById('edit-title').value);
+            localStorage.setItem('w-desc', document.getElementById('edit-desc').value);
+            localStorage.setItem('w-color', document.getElementById('edit-color').value);
+            location.reload();
         }
-
-        function closeAdmin() {
-            document.getElementById('admin-ui').style.display = 'none';
+        function resetAll() {
+            localStorage.clear();
+            location.reload();
         }
     </script>
 </body>
