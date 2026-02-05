@@ -172,3 +172,29 @@
     </script>
 </body>
 </html>
+
+ // Админка
+        function login() {
+            if(prompt("Введи код доступа админа:") === "2101") {
+                document.getElementById('admin-ui').style.display = 'block';
+            } else {
+                alert("Ошибка! Доступ запрещен.");
+            }
+        }
+
+        function save() {
+            localStorage.setItem('w-title', document.getElementById('edit-title').value || document.getElementById('site-title').innerText);
+            localStorage.setItem('w-desc', document.getElementById('edit-desc').value || document.getElementById('site-desc').innerText);
+            localStorage.setItem('w-color', document.getElementById('edit-color').value);
+            location.reload();
+        }
+
+        function resetAll() {
+            if(confirm("Сбросить все настройки к стандартным?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
