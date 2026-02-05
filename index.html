@@ -2,70 +2,42 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Windecs Ultimate Space</title>
+    <title>Windecs Ultimate Access</title>
     <style>
         :root { --accent: #00b894; }
         body { 
-            margin: 0; padding: 80px 40px;
-            font-family: 'Inter', sans-serif;
-            background: #0f0c29;
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            min-height: 100vh; color: white;
-            overflow: hidden;
+            margin: 0; padding: 80px 40px; font-family: 'Inter', sans-serif;
+            background: #0f0c29; background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            min-height: 100vh; color: white; overflow: hidden;
         }
-
         canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
-
-        #goose {
-            position: fixed; font-size: 60px; pointer-events: none;
-            z-index: 100; left: 0; top: 0; user-select: none;
-            will-change: transform;
-        }
-
-        .content { position: relative; z-index: 10; max-width: 700px; }
-        h1 { font-size: 4rem; margin: 0; color: var(--accent); text-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        p { font-size: 1.3rem; opacity: 0.8; margin-bottom: 40px; }
-
-        .btn {
-            display: inline-block; padding: 18px 35px; border-radius: 12px;
-            text-decoration: none; font-weight: bold; color: white;
-            background: var(--accent); border: none; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        /* КНОПКА АДМИНКИ */
-        .login-trigger { 
-            position: fixed; bottom: 20px; right: 20px; 
-            z-index: 99999;
-            background: #ff4757; color: white;
-            border: none; padding: 12px 20px;
-            border-radius: 8px; font-weight: bold;
-            cursor: pointer; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
-        }
-
-        /* АДМИН-ПАНЕЛЬ */
-        #admin-ui { 
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); background: rgba(17, 17, 17, 0.95);
-            padding: 30px; border-radius: 15px; border: 2px solid var(--accent);
-            z-index: 100000; width: 350px; backdrop-filter: blur(10px);
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-        }
-
-        .admin-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;
-        }
-
-        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: #0f0; border-radius: 5px; }
+        #goose { position: fixed; font-size: 60px; pointer-events: none; z-index: 100; left: 0; top: 0; user-select: none; }
         
-        .action-btn { 
-            background: #333; color: #0f0; border: 1px solid #0f0; 
-            padding: 8px; cursor: pointer; font-size: 12px; border-radius: 5px;
+        /* БЛОК КНОПОК: Синяя сверху, красная снизу */
+        .controls { 
+            position: fixed; bottom: 20px; right: 20px; 
+            z-index: 99999; display: flex; 
+            flex-direction: column; gap: 10px; 
         }
-        .action-btn:hover { background: #0f0; color: #000; }
+        .login-trigger { 
+            border: none; padding: 14px 22px; border-radius: 10px; 
+            font-weight: bold; cursor: pointer; color: white; 
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .login-trigger:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .btn-blue { background: #3742fa; border: 1px solid #5352ed; order: 1; } /* Синяя первая сверху */
+        .btn-red { background: #ff4757; border: 1px solid #ff6b81; order: 2; }  /* Красная вторая */
 
-        .save-btn { background: #28a745; color: white; width: 100%; padding: 12px; border: none; cursor: pointer; margin-top: 15px; border-radius: 5px; font-weight: bold; }
-        .reset-btn { background: #555; color: white; width: 100%; padding: 10px; border: none; cursor: pointer; margin-top: 5px; border-radius: 5px; }
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 30px; border-radius: 15px; z-index: 100000; width: 320px; backdrop-filter: blur(15px); }
+        #panel-site { background: rgba(0, 40, 20, 0.95); border: 2px solid #00ff88; box-shadow: 0 0 30px rgba(0,255,136,0.3); }
+        #panel-hack { background: rgba(30, 0, 50, 0.95); border: 2px solid #3742fa; box-shadow: 0 0 30px rgba(55,66,250,0.3); }
+
+        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .act-btn { background: #111; color: white; border: 1px solid white; padding: 10px; cursor: pointer; border-radius: 5px; font-size: 13px; }
+        .act-btn:hover { background: white; color: black; }
+        .close-btn { width: 100%; margin-top: 15px; background: #444; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -73,56 +45,95 @@
     <div id="goose">🔪🪿</div>
     <canvas id="canvas"></canvas>
 
-    <div class="content">
-        <h1 id="site-title">Windecs Space</h1>
-        <p id="site-desc">Твой интерактивный профиль готов. Проверь админку!</p>
-        <a href="https://guns.lol" id="site-btn" class="btn">Guns.lol Profile</a>
+    <div style="position: relative; z-index: 10;">
+        <h1 id="site-title" style="font-size: 4rem; color: var(--accent); margin: 0;">Windecs</h1>
+        <p id="site-desc" style="font-size: 1.2rem; opacity: 0.7;">Добро пожаловать в систему управления.</p>
     </div>
 
-    <button class="login-trigger" onclick="login()">⚡ ОТКРЫТЬ АДМИНКУ</button>
+    <!-- КНОПКИ УПРАВЛЕНИЯ -->
+    <div class="controls">
+        <button class="login-trigger btn-blue" onclick="auth('hack')">💀 ХАКЕРСКАЯ (2101)</button>
+        <button class="login-trigger btn-red" onclick="auth('site')">⚙️ САЙТ (1121314151)</button>
+    </div>
 
-    <div id="admin-ui">
-        <h3 style="color:var(--accent); margin: 0 0 15px 0;">🛠 СИСТЕМА УПРАВЛЕНИЯ</h3>
-        
-        <label style="font-size: 12px;">Заголовок и Описание:</label>
-        <input type="text" id="edit-title" placeholder="Новый заголовок">
-        <input type="text" id="edit-desc" placeholder="Новое описание">
-        <input type="color" id="edit-color" style="height:40px; padding:2px; cursor:pointer;">
+    <!-- ПАНЕЛЬ 1: НАСТРОЙКИ (КРАСНАЯ КНОПКА) -->
+    <div id="panel-site" class="modal">
+        <h3 style="color: #00ff88; margin-top: 0;">⚙️ НАСТРОЙКИ</h3>
+        <input type="text" id="in-title" placeholder="Новый заголовок">
+        <input type="text" id="in-desc" placeholder="Новое описание">
+        <input type="color" id="in-color" style="height:45px; cursor:pointer;">
+        <button class="act-btn" style="width:100%; background:#00ff88; color:#000; font-weight:bold;" onclick="saveSite()">СОХРАНИТЬ</button>
+        <button class="close-btn" onclick="closeAll()">ЗАКРЫТЬ</button>
+    </div>
 
-        <label style="font-size: 12px;">Быстрые действия:</label>
-        <div class="admin-grid">
-            <button class="action-btn" onclick="alert('Взлом Пентагона... \nСтатус: 1%')">Взломать всё</button>
-            <button class="action-btn" onclick="alert('Сайт удален! \n(Шучу, он на месте)')">Удалить сайт</button>
-            <button class="action-btn" onclick="alert('Гусь стал в два раза злее!')">Злой гусь</button>
-            <button class="action-btn" onclick="location.reload()">Перезагрузить</button>
+    <!-- ПАНЕЛЬ 2: ХАКЕР (СИНЯЯ КНОПКА) -->
+    <div id="panel-hack" class="modal">
+        <h3 style="color: #5352ed; margin-top: 0;">💀 HACKER TOOLS</h3>
+        <div class="grid">
+            <button class="act-btn" onclick="alert('Pentagon hacking: 99%...')">Взлом</button>
+            <button class="act-btn" onclick="document.body.style.filter='hue-rotate(180deg)'">Сбой фазы</button>
+            <button class="act-btn" onclick="document.getElementById('goose').innerText='🦖'">МЕГА-БОСС</button>
+            <button class="act-btn" onclick="location.reload()">Сброс</button>
         </div>
-
-        <button class="save-btn" onclick="save()">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
-        <button class="reset-btn" onclick="resetAll()">СБРОСИТЬ НАСТРОЙКИ</button>
-        <button class="reset-btn" style="background:#cc0000" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ ПАНЕЛЬ</button>
+        <button class="close-btn" onclick="closeAll()">ЗАКРЫТЬ</button>
     </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const goose = document.getElementById('goose');
-        let mX = window.innerWidth/2, mY = window.innerHeight/2, gX = 0, gY = 0;
+        // Авторизация
+        function auth(type) {
+            const pass = prompt("PASSWORD REQUIRED:");
+            if (type === 'site' && pass === '1121314151') {
+                document.getElementById('panel-site').style.display = 'block';
+            } else if (type === 'hack' && pass === '2101') {
+                document.getElementById('panel-hack').style.display = 'block';
+            } else if (pass !== null) {
+                alert("ACCESS DENIED");
+            }
+        }
 
-        // Загрузка данных
+        function closeAll() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        function saveSite() {
+            localStorage.setItem('t', document.getElementById('in-title').value);
+            localStorage.setItem('d', document.getElementById('in-desc').value);
+            localStorage.setItem('c', document.getElementById('in-color').value);
+            location.reload();
+        }
+
         window.onload = () => {
-            if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
-            if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
-            if(localStorage.getItem('w-color')) {
-                const c = localStorage.getItem('w-color');
+            if(localStorage.getItem('t')) document.getElementById('site-title').innerText = localStorage.getItem('t');
+            if(localStorage.getItem('d')) document.getElementById('site-desc').innerText = localStorage.getItem('d');
+            if(localStorage.getItem('c')) {
+                const c = localStorage.getItem('c');
                 document.documentElement.style.setProperty('--accent', c);
-                document.getElementById('site-btn').style.background = c;
             }
         };
 
         // Логика гуся
-        window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
-        function animGoose() {
-            gX += (mX - gX) * 0.12; 
+        let mx=0, my=0, gx=0, gy=0;
+        window.onmousemove=(e)=>{mx=e.clientX; my=e.clientY;};
+        function anim() {
+            gx+=(mx-gx)*0.1; gy+=(my-gy)*0.1;
+            document.getElementById('goose').style.transform=`translate(${gx-30}px,${gy-30}px) ${mx>gx?'scaleX(-1)':'scaleX(1)'}`;
+            requestAnimationFrame(anim);
+        }
+        anim();
+
+        // Частицы
+        const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d');
+        cvs.width=window.innerWidth; cvs.height=window.innerHeight;
+        const pts=[]; for(let i=0;i<50;i++)pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,vx:Math.random()-0.5,vy:Math.random()-0.5});
+        function draw(){
+            ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle="rgba(255,255,255,0.3)";
+            pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,7);ctx.fill();});
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>
             gY += (mY - gY) * 0.12;
             const flip = mX > gX ? 'scaleX(-1)' : 'scaleX(1)';
             goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${flip}`;
