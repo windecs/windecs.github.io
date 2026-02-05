@@ -173,9 +173,87 @@
 </body>
 </html>
 
- // Админка
+login-trigger { 
+            position: fixed; bottom: 20px; right: 20px; 
+            z-index: 99999;
+            background: #ff4757; color: white;
+            border: none; padding: 12px 20px;
+            border-radius: 8px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+
+ button class="login-trigger" onclick="login()">⚡ ОТКРЫТЬ АДМИНКУ</button>
+
+    <div id="admin-ui">
+        <h3 style="color:var(--accent); margin: 0 0 15px 0;">🛠 СИСТЕМА УПРАВЛЕНИЯ</h3>
+        
+        <label style="font-size: 12px;">Заголовок и Описание:</label>
+        <input type="text" id="edit-title" placeholder="Новый заголовок">
+        <input type="text" id="edit-desc" placeholder="Новое описание">
+        <input type="color" id="edit-color" style="height:40px; padding:2px; cursor:pointer;">
+
+        <label style="font-size: 12px;">Быстрые действия:</label>
+        <div class="admin-grid">
+            <button class="action-btn" onclick="alert('Взлом Пентагона... \nСтатус: 1%')">Взломать всё</button>
+            <button class="action-btn" onclick="alert('Сайт удален! \n(Шучу, он на месте)')">Удалить сайт</button>
+            <button class="action-btn" onclick="alert('Гусь стал в два раза злее!')">Злой гусь</button>
+            <button class="action-btn" onclick="location.reload()">Перезагрузить</button>
+        </div>
+
+        <button class="save-btn" onclick="save()">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+        <button class="reset-btn" onclick="resetAll()">СБРОСИТЬ НАСТРОЙКИ</button>
+        <button class="reset-btn" style="background:#cc0000" onclick="document.getElementById('admin-ui').style.display='none'">ЗАКРЫТЬ ПАНЕЛЬ</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const goose = document.getElementById('goose');
+        let mX = window.innerWidth/2, mY = window.innerHeight/2, gX = 0, gY = 0;
+
+        // Загрузка данных
+        window.onload = () => {
+            if(localStorage.getItem('w-title')) document.getElementById('site-title').innerText = localStorage.getItem('w-title');
+            if(localStorage.getItem('w-desc')) document.getElementById('site-desc').innerText = localStorage.getItem('w-desc');
+            if(localStorage.getItem('w-color')) {
+                const c = localStorage.getItem('w-color');
+                document.documentElement.style.setProperty('--accent', c);
+                document.getElementById('site-btn').style.background = c;
+            }
+        };
+
+        // Логика гуся
+        window.onmousemove = (e) => { mX = e.clientX; mY = e.clientY; };
+        function animGoose() {
+            gX += (mX - gX) * 0.12; 
+            gY += (mY - gY) * 0.12;
+            const flip = mX > gX ? 'scaleX(-1)' : 'scaleX(1)';
+            goose.style.transform = `translate(${gX-30}px, ${gY-30}px) ${flip}`;
+            requestAnimationFrame(animGoose);
+        }
+        animGoose();
+
+        // Фон с частицами
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const pts = [];
+        for(let i=0; i<60; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx: Math.random()*1.2-0.6, vy: Math.random()*1.2-0.6});
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            pts.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if(p.x<0 || p.x>canvas.width) p.vx*=-1;
+                if(p.y<0 || p.y>canvas.height) p.vy*=-1;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        // Админка
         function login() {
-            if(prompt("Введи код доступа админа:") === "2101") {
+            if(prompt("Введи код доступа админа:") === "1121314151") {
                 document.getElementById('admin-ui').style.display = 'block';
             } else {
                 alert("Ошибка! Доступ запрещен.");
