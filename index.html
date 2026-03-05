@@ -218,3 +218,20 @@
     </script>
 </body>
 </html>
+
+
+
+<input id="msg" placeholder="Напиши сообщение">
+<button onclick="sendSMS()">Отправить SMS</button>
+
+<script>
+function sendSMS() {
+  const text = document.getElementById("msg").value;
+
+  fetch("http://localhost:3000/send-sms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  }).then(res => alert("Сообщение отправлено!"));
+}
+</script>
