@@ -1,237 +1,39 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Windecs Ultimate Access</title>
-    <style>
-        :root { --accent: #00b894; }
-        body { 
-            margin: 0; padding: 80px 40px; font-family: 'Inter', sans-serif;
-            background: #0f0c29; background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            min-height: 100vh; color: white; overflow: hidden;
-        }
-        canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        #goose { position: fixed; font-size: 60px; pointer-events: none; z-index: 100; left: 0; top: 0; user-select: none; }
-        
-        /* БЛОК КНОПОК: Синяя сверху, красная снизу */
-        .controls { 
-            position: fixed; bottom: 20px; right: 20px; 
-            z-index: 99999; display: flex; 
-            flex-direction: column; gap: 10px; 
-        }
-        .login-trigger { 
-            border: none; padding: 14px 22px; border-radius: 10px; 
-            font-weight: bold; cursor: pointer; color: white; 
-            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .login-trigger:hover { transform: scale(1.05); filter: brightness(1.2); }
-        .btn-blue { background: #3742fa; border: 1px solid #5352ed; order: 1; } /* Синяя первая сверху */
-        .btn-red { background: #ff4757; border: 1px solid #ff6b81; order: 2; }  /* Красная вторая */
+<!-- 1. Подключаем библиотеку ПЕРВОЙ -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net"></script>
 
-        /* МОДАЛЬНЫЕ ОКНА */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 30px; border-radius: 15px; z-index: 100000; width: 320px; backdrop-filter: blur(15px); }
-        #panel-site { background: rgba(0, 40, 20, 0.95); border: 2px solid #00ff88; box-shadow: 0 0 30px rgba(0,255,136,0.3); }
-        #panel-hack { background: rgba(30, 0, 50, 0.95); border: 2px solid #3742fa; box-shadow: 0 0 30px rgba(55,66,250,0.3); }
+<script type="text/javascript">
+  // Эта функция сработает только тогда, когда ВСЁ (включая библиотеку) загрузится
+  window.onload = function() {
+    
+    // Проверяем, появилась ли переменная emailjs
+    if (typeof emailjs !== 'undefined') {
+      
+      emailjs.init({
+        publicKey: "HtYE1Fe2UojNHBMOo",
+      });
 
-        input { width: 90%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 5px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .act-btn { background: #111; color: white; border: 1px solid white; padding: 10px; cursor: pointer; border-radius: 5px; font-size: 13px; }
-        .act-btn:hover { background: white; color: black; }
-        .close-btn { width: 100%; margin-top: 15px; background: #444; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; }
-    </style>
-</head>
-<body>
+      const btn = document.getElementById('button');
+      const form = document.getElementById('form');
 
-    <div id="goose">🪿</div>
-    <canvas id="canvas"></canvas>
+      if (form) {
+        form.addEventListener('submit', function(event) {
+          event.preventDefault();
+          if (btn) btn.value = 'Отправка...';
 
-    <div style="position: relative; z-index: 10;">
-        <h1 id="site-title" style="font-size: 4rem; color: var(--accent); margin: 0;">Windecs</h1>
-        <p id="site-desc" style="font-size: 1.2rem; opacity: 0.7;">Добро пожаловать в систему управления.</p>
-    </div>
-
-    <!-- КНОПКИ УПРАВЛЕНИЯ -->
-    <div class="controls">
-        <button class="login-trigger btn-blue" onclick="auth('hack')">💀 Админ панель</button>
-        <button class="login-trigger btn-red" onclick="auth('site')">⚙️ Админ панель</button>
-    </div>
-
-    <!-- ПАНЕЛЬ 1: НАСТРОЙКИ (КРАСНАЯ КНОПКА) -->
-    <div id="panel-site" class="modal">
-        <h3 style="color: #00ff88; margin-top: 0;">⚙️ НАСТРОЙКИ</h3>
-        <input type="text" id="in-title" placeholder="Новый заголовок">
-        <input type="text" id="in-desc" placeholder="Новое описание">
-        <input type="color" id="in-color" style="height:45px; cursor:pointer;">
-        <button class="act-btn" style="width:100%; background:#00ff88; color:#000; font-weight:bold;" onclick="saveSite()">СОХРАНИТЬ</button>
-        <button class="close-btn" onclick="closeAll()">ЗАКРЫТЬ</button>
-    </div>
-
-    <!-- ПАНЕЛЬ 2: ХАКЕР (СИНЯЯ КНОПКА) -->
-    <div id="panel-hack" class="modal">
-        <h3 style="color: #5352ed; margin-top: 0;">💀 HACKER TOOLS</h3>
-        <div class="grid">
-            <button class="act-btn" onclick="alert('Pentagon hacking: 99%...')">Взлом</button>
-            <button class="act-btn" onclick="document.body.style.filter='hue-rotate(180deg)'">Сбой фазы</button>
-            <button class="act-btn" onclick="document.getElementById('goose').innerText='🦖'">МЕГА-БОСС</button>
-            <button class="act-btn" onclick="location.reload()">Сброс</button>
-        </div>
-        <button class="close-btn" onclick="closeAll()">ЗАКРЫТЬ</button>
-    </div>
-
-    <script>
-        // Авторизация
-        function auth(type) {
-            const pass = prompt("PASSWORD REQUIRED:");
-            if (type === 'site' && pass === '1121314151') {
-                document.getElementById('panel-site').style.display = 'block';
-            } else if (type === 'hack' && pass === '2101') {
-                document.getElementById('panel-hack').style.display = 'block';
-            } else if (pass !== null) {
-                alert("ACCESS DENIED");
-            }
-        }
-
-        function closeAll() {
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        }
-
-        function saveSite() {
-            localStorage.setItem('t', document.getElementById('in-title').value);
-            localStorage.setItem('d', document.getElementById('in-desc').value);
-            localStorage.setItem('c', document.getElementById('in-color').value);
-            location.reload();
-        }
-
-        window.onload = () => {
-            if(localStorage.getItem('t')) document.getElementById('site-title').innerText = localStorage.getItem('t');
-            if(localStorage.getItem('d')) document.getElementById('site-desc').innerText = localStorage.getItem('d');
-            if(localStorage.getItem('c')) {
-                const c = localStorage.getItem('c');
-                document.documentElement.style.setProperty('--accent', c);
-            }
-        };
-
-        // Логика гуся
-        let mx=0, my=0, gx=0, gy=0;
-        window.onmousemove=(e)=>{mx=e.clientX; my=e.clientY;};
-        function anim() {
-            gx+=(mx-gx)*0.1; gy+=(my-gy)*0.1;
-            document.getElementById('goose').style.transform=`translate(${gx-30}px,${gy-30}px) ${mx>gx?'scaleX(-1)':'scaleX(1)'}`;
-            requestAnimationFrame(anim);
-        }
-        anim();
-
-        // Частицы
-        const cvs=document.getElementById('canvas'); const ctx=cvs.getContext('2d');
-        cvs.width=window.innerWidth; cvs.height=window.innerHeight;
-        const pts=[]; for(let i=0;i<50;i++)pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,vx:Math.random()-0.5,vy:Math.random()-0.5});
-        function draw(){
-            ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle="rgba(255,255,255,0.3)";
-            pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,7);ctx.fill();});
-            requestAnimationFrame(draw);
-        }
-        draw();
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { background: #121212; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; }
-
-        /* Стильная красная кнопка с неоновым свечением */
-        .admin-btn {
-            padding: 15px 30px;
-            font-size: 18px;
-            color: #ff4d4d;
-            background: transparent;
-            border: 2px solid #ff4d4d;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
-        }
-
-        .admin-btn:hover {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 0 30px rgba(255, 77, 77, 0.6);
-            transform: translateY(-3px);
-        }
-
-        /* Темная панель статистики */
-        #adminPanel {
-            display: none;
-            margin-top: 30px;
-            padding: 25px;
-            background: #1e1e1e;
-            border-radius: 15px;
-            border: 1px solid #333;
-            color: white;
-            text-align: center;
-            width: 300px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .stat-item { margin: 15px 0; }
-        .stat-num { font-size: 24px; font-weight: bold; color: #ff4d4d; display: block; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body>
-
-    <button class="admin-btn" onclick="checkPassword()">Админ-панель</button>
-
-    <div id="adminPanel">
-        <h3 style="margin-top:0">Аналитика сайта</h3>
-        <div class="stat-item">
-            <span>Сейчас в сети</span>
-            <span id="onlineCount" class="stat-num">0</span>
-        </div>
-        <div class="stat-item" style="border-top: 1px solid #333; padding-top: 15px;">
-            <span>Всего визитов</span>
-            <span id="totalCount" class="stat-num">0</span>
-        </div>
-    </div>
-
-    <script>
-        let totalVisits = localStorage.getItem('totalVisits') || 0;
-        totalVisits++;
-        localStorage.setItem('totalVisits', totalVisits);
-
-        function checkPassword() {
-            const pass = prompt("Доступ ограничен. Введите код:");
-            if (pass === "20013") {
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('totalCount').innerText = totalVisits;
-                document.getElementById('onlineCount').innerText = Math.floor(Math.random() * 5) + 1;
-            } else {
-                alert("Ошибка доступа!");
-            }
-        }
-    </script>
-</body>
-</html>
-
-
-
-<input id="msg" placeholder="Напиши сообщение">
-<button onclick="sendSMS()">Отправить SMS</button>
-
-<script>
-function sendSMS() {
-  const text = document.getElementById("msg").value;
-
-  fetch("http://localhost:3000/send-sms", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: text })
-  }).then(res => alert("Сообщение отправлено!"));
-}
+          emailjs.sendForm('service_7awq98i', 'template_uf52wx1', this)
+            .then(() => {
+              if (btn) btn.value = 'Отправлено!';
+              alert('Успех!');
+            }, (err) => {
+              if (btn) btn.value = 'Ошибка';
+              alert('Ошибка: ' + JSON.stringify(err));
+            });
+        });
+      }
+    } else {
+      // Если библиотека всё еще не видна (например, AdBlock заблокировал)
+      console.error("EmailJS не загрузился. Проверьте подключение к интернету или AdBlock.");
+      alert("Ошибка загрузки модуля почты. Попробуйте обновить страницу.");
+    }
+  };
 </script>
